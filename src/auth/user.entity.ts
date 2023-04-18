@@ -1,4 +1,5 @@
 import { BaseEntity, Column, Entity, PrimaryGeneratedColumn, Unique } from 'typeorm';
+import * as bcrypt from 'bcrypt';
 
 // defining the User entity with the id (auto-generated Primary Key), username and password
 @Entity()
@@ -15,4 +16,14 @@ export class User extends BaseEntity {
 
   @Column()
   salt: string;
+
+  /**
+   * @description
+   * takes the user's plaintext password of the user and compares it to the saved password
+   * @param {string} password plaintext password provided by the user during sign in
+   * @returns a boolean based on the comparison
+   */
+  async validatePassword(password: string): Promise<boolean> {
+    return await bcrypt.compare(password, this.password);
+  }
 }

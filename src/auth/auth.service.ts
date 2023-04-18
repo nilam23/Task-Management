@@ -10,12 +10,12 @@ import { getSaltAndHashPassword } from './helpers/methods';
 export class AuthService {
   // Injection of the User repository into the service
   constructor(
-    @InjectRepository(User) private readonly userService: Repository<User>,
+    @InjectRepository(User) private readonly userRepository: Repository<User>,
   ) {}
   
   /**
    * @description
-   * this service method takes the users credentials as input parameter,
+   * this service method takes the users sign up credentials as input parameter,
    * hashes the plaintext password of the user with a unique salt
    * and then saves the user in the database
    * @param {AuthCredentialsDto} authCredentialsDto user's signup credentials
@@ -40,5 +40,21 @@ export class AuthService {
         throw new InternalServerErrorException();
       }
     }
+  }
+
+  /**
+   * @description
+   * this service method takes the user's sign in credentials as input parameter
+   * and the checks the authenticity of the credentials
+   * @param {AuthCredentialsDto} authCredentialsDto user's signup credentials
+   * @returns either the username or null based on the auth check
+   */
+  async validateUserPassword(authCredentialsDto: AuthCredentialsDto): Promise<string> {
+    const { username, password } = authCredentialsDto;
+
+    const user = await this.userRepository.findOneBy({ username });
+
+    if (user && await user.validatePassword(password)) return user.username;
+    return null;
   }
 }
