@@ -1,16 +1,20 @@
-import { Injectable, ConflictException, InternalServerErrorException } from '@nestjs/common';
+import { Injectable, ConflictException, InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { JwtService } from '@nestjs/jwt/dist';
 import { User } from './user.entity';
 import { AuthCredentialsDto } from './dto/auth-credentials.dto';
-import { DbErrorCodes } from './helpers/constants';
-import { getSaltAndHashPassword } from './helpers/methods';
+import { DbErrorCodes } from './helpers/auth.constants';
+import { getAccessToken, getSaltAndHashPassword } from './helpers/auth.methods';
+import { JwtPayload } from './helpers/auth.interfaces';
 
 @Injectable()
 export class AuthService {
   // Injection of the User repository into the service
   constructor(
-    @InjectRepository(User) private readonly userRepository: Repository<User>,
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
+    private readonly jwtService: JwtService
   ) {}
   
   /**
@@ -46,15 +50,23 @@ export class AuthService {
    * @description
    * this service method takes the user's sign in credentials as input parameter
    * and the checks the authenticity of the credentials
+   * if auth check is successful, an access token is generated for the user
    * @param {AuthCredentialsDto} authCredentialsDto user's signup credentials
-   * @returns either the username or null based on the auth check
+   * @returns the jwt access token
    */
-  async validateUserPassword(authCredentialsDto: AuthCredentialsDto): Promise<string> {
+  async signIn(authCredentialsDto: AuthCredentialsDto): Promise<{ accessToken: string }> {
     const { username, password } = authCredentialsDto;
 
-    const user = await this.userRepository.findOneBy({ username });
+    try {
+      const user = await this.userRepository.findOneBy({ username });
 
-    if (user && await user.validatePassword(password)) return user.username;
-    return null;
+      if (!user || !await user.validatePassword(password)) throw new UnauthorizedException('Invalid credentials');
+
+      const accessToken: string = await getAccessToken(username, this.jwtService);
+
+      return { accessToken };
+    } catch (error) {
+      throw new InternalServerErrorException();
+    }
   }
 }

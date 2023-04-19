@@ -25,14 +25,12 @@ export class AuthController {
    * @description
    * the controller method to sign in an existing user
    * @param {AuthCredentialsDto} authCredentialsDto user's signin credentials
-   * @returns
+   * @returns the access token generated
    */
   @Post('/signin')
   async singIn(
     @Body(ValidationPipe) authCredentialsDto: AuthCredentialsDto
-  ): Promise<void> {
-    const username = await this.authService.validateUserPassword(authCredentialsDto);
-    
-    if (!username) throw new UnauthorizedException('Invalid credentials');
+  ): Promise<{ accessToken: string }> {
+    return this.authService.signIn(authCredentialsDto);
   }
 }
