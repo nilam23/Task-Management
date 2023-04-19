@@ -14,7 +14,7 @@ import {
 import { CreateTaskDto } from './dto/create-task.dto';
 import { GetTasksFilterDto } from './dto/get-tasks-filter.dto';
 import { TaskStatusValidationPipe } from './pipes/task-status-validation.pipe';
-import { TaskStatus } from './task-status.enum';
+import { TaskStatus } from './helpers/task-status.enum';
 import { Task } from './task.entity';
 import { TasksService } from './tasks.service';
 
@@ -24,40 +24,65 @@ export class TasksController {
   // which has been injected in the TaskController via the @Injectable() decorator
   constructor(private tasksService: TasksService) {}
 
+  /**
+   * @description
+   * the controller method to fetch either all tasks or tasks based on query params
+   * @param {GetTasksFilterDto} filterDto the request query params
+   * @returns tasks fetched from database
+   */
   @Get()
   getTasks(
     @Query(ValidationPipe) filterDto: GetTasksFilterDto,
   ): Promise<Task[]> {
-    // fetching tasks from the database
     return this.tasksService.getTasks(filterDto);
   }
 
+  /**
+   * @description
+   * the controller method to fetch task by its corresponding id
+   * @param {number} id the id of the task to be fetched from database
+   * @returns the task corresponding to the id
+   */
   @Get('/:id')
   getTaskById(@Param('id', ParseIntPipe) id: number): Promise<Task> {
-    // extracts and returns the task with the corresponding id provided in the request parameter
     return this.tasksService.getTaskById(id);
   }
 
+  /**
+   * @description
+   * the controller method to create a new task and save it in the database
+   * @param {CreateTaskDto} createTaskDto the request body params
+   * @returns the newly created task
+   */
   @Post()
   @UsePipes(ValidationPipe)
   createTask(@Body() createTaskDto: CreateTaskDto): Promise<Task> {
-    // creates and returns a new task with the request body parameters
     return this.tasksService.createTask(createTaskDto);
   }
 
+  /**
+   * @description
+   * the controller method to update the status of an existing task
+   * @param {number} id the id of the task to be updated
+   * @param {TaskStatus} status the new status of the task
+   * @returns the updated task
+   */
   @Patch('/:id/status')
   updateTaskStatus(
     @Param('id', ParseIntPipe) id: number,
     @Body('status', TaskStatusValidationPipe) status: TaskStatus,
   ): Promise<Task> {
-    // extracts the task with the corresponding id provided in the request parameter
-    // then updates the status of the task based on the value provided in the request body
     return this.tasksService.updateTaskStatus(id, status);
   }
 
+  /**
+   * @description
+   * the controller method to delete an existing task
+   * @param {number} id the id of the task to be deleted
+   * @returns
+   */
   @Delete('/:id')
   deleteTask(@Param('id', ParseIntPipe) id: number): Promise<void> {
-    // extracts and deletes a task with its corresponding id provided in the request parameter
     return this.tasksService.deleteTask(id);
   }
 }

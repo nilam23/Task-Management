@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
 import { BaseEntity, Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
-import { TaskStatus } from './task-status.enum';
+import { TaskStatus } from './helpers/task-status.enum';
 
 // defining the Task entity with the parameters id, title, description and status
 @Entity()
