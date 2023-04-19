@@ -64,6 +64,7 @@ export class AuthService {
 
       return { accessToken };
     } catch (error) {
+      if (error?.response?.statusCode === 401) throw new UnauthorizedException(error?.message);
       throw new InternalServerErrorException();
     }
   }
