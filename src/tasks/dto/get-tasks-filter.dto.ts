@@ -1,5 +1,4 @@
-/* eslint-disable prettier/prettier */
-import { TaskStatus } from '../task-status.enum';
+import { TaskStatus } from '../helpers/task-status.enum';
 import { IsOptional, IsIn, IsNotEmpty } from 'class-validator';
 
 // defining the properties that may be used while fetching the tasks
