@@ -6,14 +6,12 @@ import { User } from './user.entity';
 import { AuthCredentialsDto } from './dto/auth-credentials.dto';
 import { DbErrorCodes } from './helpers/auth.constants';
 import { getAccessToken, getSaltAndHashPassword } from './helpers/auth.methods';
-import { JwtPayload } from './helpers/auth.interfaces';
 
 @Injectable()
 export class AuthService {
-  // Injection of the User repository into the service
   constructor(
     @InjectRepository(User)
-    private readonly userRepository: Repository<User>,
+    private readonly userRepository: Repository<User>, // Injection of the User repository into the service
     private readonly jwtService: JwtService
   ) {}
   
