@@ -5,6 +5,7 @@ import { CreateTaskDto } from './dto/create-task.dto';
 import { GetTasksFilterDto } from './dto/get-tasks-filter.dto';
 import { Task } from './task.entity';
 import { TaskStatus } from './helpers/task-status.enum';
+import { User } from 'src/auth/user.entity';
 
 // dependency injection of the TaskService as a provider into the TaskController
 @Injectable()
@@ -20,12 +21,14 @@ export class TasksService {
    * @param {GetTasksFilterDto} filterDto the request query params received in controller level
    * @returns tasks fetched from the database
    */
-  async getTasks(filterDto: GetTasksFilterDto): Promise<Task[]> {
+  async getTasks(filterDto: GetTasksFilterDto, user: User): Promise<Task[]> {
     const { status, search } = filterDto;
 
     try {
       // implementing the query builder
       const query = this.taskRepository.createQueryBuilder('task');
+
+      query.where('task.userId = :userId', { userId: user.id });
 
       // if tasks to be fetched based on some status value
       if (status) {
@@ -54,9 +57,9 @@ export class TasksService {
    * @param {number} id the id of the task to be fetched from database
    * @returns the task with the corresponding id
    */
-  async getTaskById(id: number): Promise<Task> {
+  async getTaskById(id: number, user: User): Promise<Task> {
     try {
-      const task = await this.taskRepository.findOneBy({ id });
+      const task = await this.taskRepository.findOne({ where: { id, userId: user.id } });
 
       if (!task) throw new NotFoundException(`Task with ID ${id} not found`);
 
@@ -73,7 +76,7 @@ export class TasksService {
    * @param {CreateTaskDto} createTaskDto request body params received in controller level
    * @returns the newly created task
    */
-  async createTask(createTaskDto: CreateTaskDto): Promise<Task> {
+  async createTask(createTaskDto: CreateTaskDto, user: User): Promise<Task> {
     try {
       const { title, description } = createTaskDto;
 
@@ -81,8 +84,11 @@ export class TasksService {
       task.title = title;
       task.description = description;
       task.status = TaskStatus.OPEN;
+      task.user = user;
 
       const result = await task.save();
+
+      delete task.user;
 
       return result;
     } catch (error) {
@@ -97,9 +103,9 @@ export class TasksService {
    * @param {TaskStatus} status the new status of the task to be updated
    * @returns the updated task
    */
-  async updateTaskStatus(id: number, status: TaskStatus): Promise<Task> {
+  async updateTaskStatus(id: number, status: TaskStatus, user: User): Promise<Task> {
     try {
-      const task = await this.getTaskById(id);
+      const task = await this.getTaskById(id, user);
 
       if (task.status !== status) { // the incoming status has to be different from the current status of the task
         task.status = status;
@@ -118,9 +124,9 @@ export class TasksService {
    * this service method finds a task by its id and then deletes the same
    * @param {number} id the id of the task to be updated
    */
-  async deleteTask(id: number): Promise<void> {
+  async deleteTask(id: number, user: User): Promise<void> {
     try {
-      const result = await this.taskRepository.delete(id);
+      const result = await this.taskRepository.delete({ id, userId: user.id });
 
       // when the task to be deleted DNE in the database
       if (!result.affected) throw new NotFoundException(`Task with ID ${id} not found`);
