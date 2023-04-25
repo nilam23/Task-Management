@@ -1,14 +1,23 @@
-/* eslint-disable prettier/prettier */
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 
-// defininf the TypeORM configs
-export const typeOrmConfig: TypeOrmModuleOptions = {
-  type: 'postgres',
-  host: process.env.DB_HOST,
-  port: parseInt(process.env.DB_PORT),
-  username: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
-  entities: [__dirname + '/../**/*.entity.{js, ts}'],
-  synchronize: true,
+// defining the TypeORM configs
+export const typeOrmConfigs = (): TypeOrmModuleOptions => {
+  const host: string = process.env.DB_HOST;
+  const port: number = parseInt(process.env.DB_PORT);
+  const username: string = process.env.DB_USER;
+  const password: string = process.env.DB_PASSWORD;
+  const database: string = process.env.DB_NAME;
+
+  const dbConfigs: TypeOrmModuleOptions = {
+    type: 'postgres',
+    host,
+    port,
+    username,
+    password,
+    database,
+    entities: [__dirname + '/../**/*.entity.{js, ts}'],
+    synchronize: true,
+  }
+
+  return dbConfigs;
 }
