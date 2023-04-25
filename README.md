@@ -1,73 +1,79 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
-
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
-
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
-
 ## Description
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+Demonstration of CRUD operations along with user authentication and authorization in a Task Management system implemented using NestJS, TypeScript and Postgresql database.
 
-## Installation
+## Routes
+
+### 1. Auth routes
+
+`POST /auth/signup`: To sign up a new user.
+
+`POST /auth/signin`: To sign in an existing user.
+
+### 2. Task routes
+
+`GET /tasks`: To fetch either all tasks from database or tasks based on some search parameters.
+
+`POST /tasks`: To create a new task.
+
+`GET /tasks/:id`: To fetch a task by it's id.
+
+`PATCH /tasks/:id`: To update a task corresponding to an id.
+
+`DELETE /tasks/:id`: To delete a task corresponding to an id.
+
+
+## Database schemas
+
+### 1. User schema
+
+`id (type: number)`: This column denotes a unique id for a user which is also the Primary Key for the table.
+
+`username (type: string)`: This column denotes the unique username of a user.
+
+`password (type: string)`: This column denotes the user's hashed password.
+
+`salt (type: string)`: This column denotes the salt used during the hashing of the user's plaintext password.
+
+### 2. Task schema
+
+`id (type: number)`: This column denotes a unique id for a task which is also the Primary Key for the table.
+
+`title (type: string)`: This column denotes the title of a task.
+
+`description (type: string)`: This column denotes the description of a task.
+
+`status (type: string)`: This column denotes the current status of a string.
+
+`userId (type: number)`: This column denotes the id of an existing user who created the task, which is the Foreign Key of the table.
+
+## Environment variables
+
+### 1. Environment variables for database configurations
+`DB_HOST` `DB_PORT` `DB_USER` `DB_PASSWORD` `DB_NAME`
+
+### 2. Other environment variables
+`DEV_PORT` `JWT_SECRET` `JWT_EXPIRY`
+
+## Steps to run
+
+### 1. Getting the repository
+
+```
+1. Make sure that you have Node installed.
+2. Clone the repository.
+3. Move into the project's directory.
+4. Create a .env file and set the environment variables.
+```
+
+### 2. Installation
 
 ```bash
 $ npm install
 ```
 
-## Running the app
+### 3. Running the app
 
 ```bash
-# development
-$ npm run start
-
-# watch mode
 $ npm run start:dev
-
-# production mode
-$ npm run start:prod
 ```
-
-## Test
-
-```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
-```
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](LICENSE).
