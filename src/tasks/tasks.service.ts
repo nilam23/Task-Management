@@ -1,4 +1,4 @@
-import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateTaskDto } from './dto/create-task.dto';
@@ -10,6 +10,9 @@ import { User } from 'src/auth/user.entity';
 // dependency injection of the TaskService as a provider into the TaskController
 @Injectable()
 export class TasksService {
+  // adding logger
+  private logger = new Logger('TaskService');
+
   // injecting the Task Repository into the service
   constructor(
     @InjectRepository(Task) private readonly taskRepository: Repository<Task>,
@@ -47,6 +50,8 @@ export class TasksService {
 
       return tasks;
     } catch (error) {
+      this.logger.error(`Failed to get tasks for ${user.username}. Filters: ${JSON.stringify(filterDto)}`, error.stack);
+
       throw new InternalServerErrorException();
     }
   }
@@ -65,6 +70,8 @@ export class TasksService {
 
       return task;
     } catch (error) {
+      this.logger.error(`Failed to get the task with id ${id} for ${user.username}`, error.stack);
+
       if (error?.response?.statusCode === 404) throw new NotFoundException(error?.message);
       throw new InternalServerErrorException();
     }
@@ -92,6 +99,8 @@ export class TasksService {
 
       return result;
     } catch (error) {
+      this.logger.error(`Failed to create task for ${user.username}. Data: ${JSON.stringify(createTaskDto)}`, error.stack);
+
       throw new InternalServerErrorException();
     }
   }
@@ -114,6 +123,8 @@ export class TasksService {
         return task;
       }
     } catch (error) {
+      this.logger.error(`Failed to update the task corresponding to the id ${id} with the status '${status}' for ${user.username}`, error.stack);
+
       if (error?.response?.statusCode === 404) throw new NotFoundException(error?.message);
       throw new InternalServerErrorException();
     }
@@ -131,6 +142,8 @@ export class TasksService {
       // when the task to be deleted DNE in the database
       if (!result.affected) throw new NotFoundException(`Task with ID ${id} not found`);
     } catch (error) {
+      this.logger.error(`Failed to delete the task with the id ${id} for ${user.username}`, error.stack);
+
       if (error?.response?.statusCode === 404) throw new NotFoundException(error?.message);
       throw new InternalServerErrorException();
     }

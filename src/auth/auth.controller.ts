@@ -1,9 +1,12 @@
-import { Body, Controller, Post, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Logger, Post, ValidationPipe } from '@nestjs/common';
 import { AuthCredentialsDto } from './dto/auth-credentials.dto';
 import { AuthService } from './auth.service';
 
 @Controller('auth')
 export class AuthController {
+  // adding logger
+  private logger = new Logger();
+
   constructor(
     private authService: AuthService,
   ) {}
@@ -18,6 +21,8 @@ export class AuthController {
   async signUp(
     @Body(ValidationPipe) authCredentialsDto: AuthCredentialsDto
   ): Promise<void> {
+    this.logger.verbose(`A new user is signing up`);
+
     return this.authService.signUp(authCredentialsDto);
   }
 
@@ -31,6 +36,8 @@ export class AuthController {
   async singIn(
     @Body(ValidationPipe) authCredentialsDto: AuthCredentialsDto
   ): Promise<{ accessToken: string }> {
+    this.logger.verbose(`A user is trying to sign in`);
+
     return this.authService.signIn(authCredentialsDto);
   }
 }

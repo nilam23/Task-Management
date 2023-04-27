@@ -1,4 +1,4 @@
-import { Injectable, ConflictException, InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
+import { Injectable, ConflictException, InternalServerErrorException, UnauthorizedException, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { JwtService } from '@nestjs/jwt/dist';
@@ -9,6 +9,9 @@ import { getAccessToken, getSaltAndHashPassword } from './helpers/auth.methods';
 
 @Injectable()
 export class AuthService {
+  // adding logger
+  private logger = new Logger();
+
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>, // Injection of the User repository into the service
@@ -36,6 +39,8 @@ export class AuthService {
 
       await user.save();
     } catch (error) {
+      this.logger.error(`Error while a new user trying to sign up`, error.stack);
+
       if (error.code === DbErrorCodes.DuplicateKey) { // violation of the unique constraint of the 'username' column
         throw new ConflictException('Username already exists');
       } else {
@@ -64,6 +69,8 @@ export class AuthService {
 
       return { accessToken };
     } catch (error) {
+      this.logger.error(`Error while a user trying to log in`, error.stack);
+
       if (error?.response?.statusCode === 401) throw new UnauthorizedException(error?.message);
       throw new InternalServerErrorException();
     }
